@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+typedef int[1,2] TLset;
+const int North = 1;
+const int East = 2;
+
+chan   start[TLset];
+chan    stop[TLset];
+</declaration>
+	<template>
+		<name x="5" y="5">TrafficLight</name>
+		<parameter>TLset id</parameter>
+		<declaration>// Place local declarations here.
+clock t;</declaration>
+		<location id="id0" x="-1190" y="-578">
+			<name x="-1232" y="-595">Red</name>
+		</location>
+		<location id="id1" x="-1054" y="-629">
+			<name x="-1088" y="-663">RedAmber</name>
+			<label kind="invariant" x="-1064" y="-612">t&lt;=2</label>
+		</location>
+		<location id="id2" x="-1054" y="-527">
+			<name x="-1064" y="-561">Amber</name>
+			<label kind="invariant" x="-1064" y="-510">t&lt;=3</label>
+		</location>
+		<location id="id3" x="-918" y="-578">
+			<name x="-901" y="-595">Green</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-1172" y="-646">start[id]?</label>
+			<label kind="assignment" x="-1172" y="-629">t=0</label>
+			<nail x="-1190" y="-629"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-1173" y="-544">t&gt;=3</label>
+			<nail x="-1190" y="-527"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-986" y="-544">stop[id]?</label>
+			<label kind="assignment" x="-977" y="-527">t=0</label>
+			<nail x="-918" y="-527"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-986" y="-646">t&gt;=2</label>
+			<nail x="-918" y="-629"/>
+		</transition>
+	</template>
+	<template>
+		<name>Controller</name>
+		<location id="id4" x="-663" y="-255">
+		</location>
+		<location id="id5" x="-510" y="-272">
+		</location>
+		<location id="id6" x="-680" y="-136">
+		</location>
+		<location id="id7" x="-697" y="-289">
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-773" y="-204">stop[North]!</label>
+			<nail x="-697" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-654" y="-204">start[North]!</label>
+			<nail x="-663" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-637" y="-255">stop[East]!</label>
+			<nail x="-544" y="-255"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-637" y="-306">start[East]!</label>
+			<nail x="-544" y="-289"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+L1 = TrafficLight(North);
+L2 = TrafficLight(East);
+
+ctrl = Controller();
+
+// List one or more processes to be composed into a system.
+system L1, L2, ctrl;
+
+gantt {
+NorthSouth: L1.Red -&gt; 0, L1.Green-&gt;1, L1.RedAmber-&gt;14, L1.Amber-&gt;6;
+EastWest  : L2.Red -&gt; 0, L2.Green-&gt;1, L2.RedAmber-&gt;14, L2.Amber-&gt;6;
+}</system>
+	<queries>
+		<query>
+			<formula>A[] not (L1.Green and L2.Green)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not( L1.RedAmber and L2.Amber )</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not (L1.Amber and L2.RedAmber)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not (L1.RedAmber and L2.RedAmber)
+</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not (L1.Amber and L2.Amber)
+</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
